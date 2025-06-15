@@ -77,6 +77,9 @@ public class NekoExperimentalSettingsActivity extends BaseNekoXSettingsActivity 
 //    private final AbstractConfigCell useCustomEmojiRow = cellGroup.appendCell(new ConfigCellTextCheck(NekoConfig.useCustomEmoji));
     private final AbstractConfigCell localQuoteColorRow = cellGroup.appendCell(new ConfigCellTextCheck(NaConfig.INSTANCE.getUseLocalQuoteColor()));
     private final AbstractConfigCell channelAliasRow = cellGroup.appendCell(new ConfigCellTextCheck(NekoConfig.channelAlias));
+    private final AbstractConfigCell externalGhostModeRow = cellGroup.appendCell(new ConfigCellText("GhostMode", () -> {
+        presentFragment(new NekoGhostModeActivity());
+    }));
     private final AbstractConfigCell customCustomChannelLabelRow = cellGroup.appendCell(new ConfigCellTextInput(null, NaConfig.INSTANCE.getCustomChannelLabel(),
             null, null,
             (input) -> input.isEmpty() ? (String) NaConfig.INSTANCE.getCustomChannelLabel().defaultValue : input));
@@ -103,6 +106,12 @@ public class NekoExperimentalSettingsActivity extends BaseNekoXSettingsActivity 
     private final AbstractConfigCell fakeHighPerformanceDeviceRow = cellGroup.appendCell(new ConfigCellTextCheck(NaConfig.INSTANCE.getFakeHighPerformanceDevice()));
     private final AbstractConfigCell disableEmojiDrawLimitRow = cellGroup.appendCell(new ConfigCellTextCheck(NaConfig.INSTANCE.getDisableEmojiDrawLimit()));
     private final AbstractConfigCell sendMp4DocumentAsVideoRow = cellGroup.appendCell(new ConfigCellTextCheck(NaConfig.INSTANCE.getSendMp4DocumentAsVideo()));
+    private final AbstractConfigCell defaultHlsVideoQualityRow = cellGroup.appendCell(new ConfigCellSelectBox(null, NaConfig.INSTANCE.getPlayerDecoder(),
+            new String[]{
+                    LocaleController.getString(R.string.PlayerDecoderSoftware),
+                    LocaleController.getString(R.string.PlayerDecoderHardware),
+                    LocaleController.getString(R.string.PlayerDecoderPerferHW),
+            }, null));
     private final AbstractConfigCell enhancedVideoBitrateRow = cellGroup.appendCell(new ConfigCellTextCheck(NaConfig.INSTANCE.getEnhancedVideoBitrate()));
     private final AbstractConfigCell hideProxySponsorChannelRow = cellGroup.appendCell(new ConfigCellTextCheck(NekoConfig.hideProxySponsorChannel));
     private final AbstractConfigCell hideSponsoredMessageRow = cellGroup.appendCell(new ConfigCellTextCheck(NekoConfig.hideSponsoredMessage));
@@ -155,6 +164,7 @@ public class NekoExperimentalSettingsActivity extends BaseNekoXSettingsActivity 
         if (!NaConfig.INSTANCE.getShowHiddenFeature().Bool()) {
             cellGroup.rows.remove(localPremiumRow);
             cellGroup.rows.remove(localQuoteColorRow);
+            cellGroup.rows.remove(externalGhostModeRow);
             cellGroup.rows.remove(enhancedFileLoaderRow);
             cellGroup.rows.remove(disableFilteringRow);
             cellGroup.rows.remove(unlimitedFavedStickersRow);
@@ -176,6 +186,7 @@ public class NekoExperimentalSettingsActivity extends BaseNekoXSettingsActivity 
             cellGroup.rows.remove(dividerStory);
 
             NekoConfig.localPremium.setConfigBool(false);
+            NekoConfig.setGhostMode(false);
             NaConfig.INSTANCE.getForceCopy().setConfigBool(false);
             NaConfig.INSTANCE.getDisableFlagSecure().setConfigBool(false);
             NekoConfig.hideSponsoredMessage.setConfigBool(false);
@@ -370,6 +381,8 @@ public class NekoExperimentalSettingsActivity extends BaseNekoXSettingsActivity 
                 Activity act = getParentActivity();
                 act.startActivityFromChild(act, intent, INTENT_PICK_CUSTOM_EMOJI_PACK);
             } else if (key.equals(NekoConfig.localeToDBC.getKey())) {
+                tooltip.showWithAction(0, UndoView.ACTION_NEED_RESATRT, null, null);
+            } else if (key.equals(NaConfig.INSTANCE.getPlayerDecoder().getKey())) {
                 tooltip.showWithAction(0, UndoView.ACTION_NEED_RESATRT, null, null);
             }
         };

@@ -4,6 +4,7 @@ import io.sentry.android.gradle.instrumentation.logcat.LogcatLevel
 apply plugin: "com.android.application"
 apply plugin: "kotlin-android"
 apply plugin: "io.sentry.android.gradle"
+apply plugin: "io.objectbox"
 
 repositories {
     maven {
@@ -15,7 +16,7 @@ repositories {
 }
 
 def verName = APP_VERSION_NAME
-def verCode = 1207
+def verCode = 1213
 
 
 def officialVer = APP_VERSION_NAME
@@ -318,6 +319,7 @@ dependencies {
 
     implementation 'com.google.android.gms:play-services-mlkit-subject-segmentation:16.0.0-beta1'
     implementation 'com.google.android.gms:play-services-mlkit-image-labeling:16.0.8'
+
 //    constraints {
 //        implementation("org.jetbrains.kotlin:kotlin-stdlib-jdk7:1.8.0") {
 //            because("kotlin-stdlib-jdk7 is now a part of kotlin-stdlib")

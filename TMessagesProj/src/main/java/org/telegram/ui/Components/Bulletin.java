@@ -782,8 +782,10 @@ public class Bulletin {
         }
 
         public void setTop(boolean top) {
-            this.top = top;
-            updateSize();
+            if (this.top != top) {
+                this.top = top;
+                updateSize();
+            }
         }
 
         private void updateSize() {
@@ -933,7 +935,10 @@ public class Bulletin {
             if (bulletin != null && (delegate == null || delegate.bottomOffsetAnimated()) && bulletin.bottomOffsetSpring != null && bulletin.bottomOffsetSpring.isRunning()) {
                 return bulletin.lastBottomOffset;
             }
-            return delegate.getBottomOffset(bulletin != null ? bulletin.tag : 0);
+            if (delegate != null) {
+                return delegate.getBottomOffset(bulletin != null ? bulletin.tag : 0);
+            }
+            return 0;
         }
 
         public interface Callback {
@@ -1791,7 +1796,7 @@ public class Bulletin {
             textView.setTextSize(TypedValue.COMPLEX_UNIT_DIP, 15);
             textView.setEllipsize(TextUtils.TruncateAt.END);
             textView.setPadding(0, dp(8), 0, dp(8));
-            addView(textView, LayoutHelper.createFrameRelatively(LayoutHelper.WRAP_CONTENT, LayoutHelper.WRAP_CONTENT, Gravity.START | Gravity.CENTER_VERTICAL, 56, 0, 8, 0));
+            addView(textView, LayoutHelper.createFrameRelatively(LayoutHelper.WRAP_CONTENT, LayoutHelper.WRAP_CONTENT, Gravity.START | Gravity.CENTER_VERTICAL, 56, 0, 16, 0));
 
             textView.setLinkTextColor(getThemedColor(Theme.key_undo_cancelColor));
             setTextColor(getThemedColor(Theme.key_undo_infoColor));

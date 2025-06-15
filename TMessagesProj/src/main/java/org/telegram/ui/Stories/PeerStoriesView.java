@@ -95,6 +95,7 @@ import org.telegram.tgnet.TLObject;
 import org.telegram.tgnet.TLRPC;
 import org.telegram.tgnet.tl.TL_account;
 import org.telegram.tgnet.tl.TL_stories;
+import org.telegram.ui.AccountFrozenAlert;
 import org.telegram.ui.ActionBar.ActionBar;
 import org.telegram.ui.ActionBar.ActionBarMenuItem;
 import org.telegram.ui.ActionBar.ActionBarMenuSubItem;
@@ -2676,6 +2677,15 @@ public class PeerStoriesView extends SizeNotifierFrameLayout implements Notifica
             public void extendActionMode(Menu menu) {
                 ChatActivity.fillActionModeMenu(menu, null, false);
             }
+
+            @Override
+            protected boolean sendMessageInternal(boolean notify, int scheduleDate, long payStars, boolean allowConfirm) {
+                if (MessagesController.getInstance(currentAccount).isFrozen()) {
+                    AccountFrozenAlert.show(currentAccount);
+                    return false;
+                }
+                return super.sendMessageInternal(notify, scheduleDate, payStars, allowConfirm);
+            }
         };
         chatActivityEnterView.getEditField().useAnimatedTextDrawable();
         chatActivityEnterView.setOverrideKeyboardAnimation(true);
@@ -2901,7 +2911,7 @@ public class PeerStoriesView extends SizeNotifierFrameLayout implements Notifica
             @Override
             public void onStickerSelected(TLRPC.TL_document document, String query, Object parent) {
                 AlertsCreator.ensurePaidMessageConfirmation(currentAccount, dialogId, 1, payStars -> {
-                    SendMessagesHelper.getInstance(currentAccount).sendSticker(document, query, dialogId, null, null, currentStory.storyItem, null, null, true, 0, false, parent, null, 0, payStars);
+                    SendMessagesHelper.getInstance(currentAccount).sendSticker(document, query, dialogId, null, null, currentStory.storyItem, null, null, true, 0, false, parent, null, 0, payStars, chatActivityEnterView.getSendMonoForumPeerId());
                     chatActivityEnterView.addStickerToRecent(document);
                     chatActivityEnterView.setFieldText("");
                     afterMessageSend(payStars <= 0);
@@ -2943,6 +2953,10 @@ public class PeerStoriesView extends SizeNotifierFrameLayout implements Notifica
     }
 
     private boolean applyMessageToChat(Runnable runnable) {
+        if (MessagesController.getInstance(currentAccount).isFrozen()) {
+            AccountFrozenAlert.show(currentAccount);
+            return true;
+        }
         if (SharedConfig.stealthModeSendMessageConfirm > 0 && stealthModeIsActive) {
             SharedConfig.stealthModeSendMessageConfirm--;
             SharedConfig.updateStealthModeSendMessageConfirm(SharedConfig.stealthModeSendMessageConfirm);
@@ -3071,7 +3085,7 @@ public class PeerStoriesView extends SizeNotifierFrameLayout implements Notifica
                                 if (i == 0) {
                                     updateStickersOrder = photos.get(0).updateStickersOrder;
                                 }
-                                SendMessagesHelper.prepareSendingMedia(getAccountInstance(), photos, dialogId, null, null, storyItem, null, button == 4 || forceDocument, arg, null, notify, scheduleDate, 0, updateStickersOrder, null, null, 0, 0, false, 0);
+                                SendMessagesHelper.prepareSendingMedia(getAccountInstance(), photos, dialogId, null, null, storyItem, null, button == 4 || forceDocument, arg, null, notify, scheduleDate, 0, updateStickersOrder, null, null, 0, 0, false, 0, chatActivityEnterView.getSendMonoForumPeerId());
                             }
                             chatActivityEnterView.setFieldText("");
                             afterMessageSend(payStars <= 0);
@@ -5833,7 +5847,7 @@ public class PeerStoriesView extends SizeNotifierFrameLayout implements Notifica
             if (currentStory.uploadingStory != null) {
                 caption = currentStory.uploadingStory.entry.caption;
                 caption = Emoji.replaceEmoji(caption, storyCaptionView.captionTextview.getPaint().getFontMetricsInt(), false);
-                SpannableStringBuilder spannableStringBuilder = SpannableStringBuilder.valueOf(caption);
+                SpannableStringBuilder spannableStringBuilder = caption == null ? new SpannableStringBuilder() : SpannableStringBuilder.valueOf(caption);
                 TLRPC.User user = MessagesController.getInstance(currentAccount).getUser(dialogId);
                 if (dialogId < 0 || MessagesController.getInstance(currentAccount).storyEntitiesAllowed(user)) {
                     MessageObject.addLinks(true, spannableStringBuilder);
@@ -7050,7 +7064,7 @@ public class PeerStoriesView extends SizeNotifierFrameLayout implements Notifica
                         storyItem.close_friends = privacy.type == StoryPrivacyBottomSheet.TYPE_CLOSE_FRIENDS;
                         storyItem.contacts = privacy.type == StoryPrivacyBottomSheet.TYPE_CONTACTS;
                         storyItem.selected_contacts = privacy.type == StoryPrivacyBottomSheet.TYPE_SELECTED_CONTACTS;
-                        MessagesController.getInstance(currentAccount).getStoriesController().updateStoryItem(storyItem.dialogId, storyItem);
+                        MessagesController.getInstance(currentAccount).getStoriesController().updateStoryItem(storyItem.dialogId, storyItem, true, true);
                         editedPrivacy = true;
 
                         if (privacy.type == StoryPrivacyBottomSheet.TYPE_EVERYONE) {

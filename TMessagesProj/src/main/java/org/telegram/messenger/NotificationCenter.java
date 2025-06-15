@@ -34,6 +34,7 @@ public class NotificationCenter {
     public static final int historyCleared = totalEvents++;
     public static final int messagesRead = totalEvents++;
     public static final int threadMessagesRead = totalEvents++;
+    public static final int monoForumMessagesRead = totalEvents++;
     public static final int commentsRead = totalEvents++;
     public static final int changeRepliesCounter = totalEvents++;
     public static final int messagesDidLoad = totalEvents++;
@@ -270,6 +271,8 @@ public class NotificationCenter {
     public static final int adminedChannelsLoaded = totalEvents++;
     public static final int messagesFeeUpdated = totalEvents++;
     public static final int commonChatsLoaded = totalEvents++;
+    public static final int appConfigUpdated = totalEvents++;
+    public static final int conferenceEmojiUpdated = totalEvents++;
 
     //global
     public static final int pushMessagesUpdated = totalEvents++;
@@ -312,6 +315,7 @@ public class NotificationCenter {
     public static final int webRtcSpeakerAmplitudeEvent = totalEvents++;
     public static final int showBulletin = totalEvents++;
     public static final int appUpdateAvailable = totalEvents++;
+    public static final int appUpdateLoading = totalEvents++;
     public static final int onDatabaseMigration = totalEvents++;
     public static final int onEmojiInteractionsReceived = totalEvents++;
     public static final int emojiPreviewThemesChanged = totalEvents++;
@@ -336,7 +340,7 @@ public class NotificationCenter {
     public static final int permissionsGranted = totalEvents++;
     public static final int activityPermissionsGranted = totalEvents++;
     public static final int topicsDidLoaded = totalEvents++;
-    public static final int chatSwithcedToForum = totalEvents++;
+    public static final int chatSwitchedForum = totalEvents++;
     public static final int didUpdateGlobalAutoDeleteTimer = totalEvents++;
     public static final int onDatabaseReset = totalEvents++;
     public static final int wallpaperSettedToUser = totalEvents++;
@@ -361,14 +365,14 @@ public class NotificationCenter {
     public static final int accountLogin = totalEvents++;
 
 
-    private SparseArray<ArrayList<NotificationCenterDelegate>> observers = new SparseArray<>();
-    private SparseArray<ArrayList<NotificationCenterDelegate>> removeAfterBroadcast = new SparseArray<>();
-    private SparseArray<ArrayList<NotificationCenterDelegate>> addAfterBroadcast = new SparseArray<>();
-    private ArrayList<DelayedPost> delayedPosts = new ArrayList<>(10);
-    private ArrayList<Runnable> delayedRunnables  = new ArrayList<>(10);
-    private ArrayList<Runnable> delayedRunnablesTmp  = new ArrayList<>(10);
-    private ArrayList<DelayedPost> delayedPostsTmp = new ArrayList<>(10);
-    private ArrayList<PostponeNotificationCallback> postponeCallbackList = new ArrayList<>(10);
+    private final SparseArray<ArrayList<NotificationCenterDelegate>> observers = new SparseArray<>();
+    private final SparseArray<ArrayList<NotificationCenterDelegate>> removeAfterBroadcast = new SparseArray<>();
+    private final SparseArray<ArrayList<NotificationCenterDelegate>> addAfterBroadcast = new SparseArray<>();
+    private final ArrayList<DelayedPost> delayedPosts = new ArrayList<>(10);
+    private final ArrayList<Runnable> delayedRunnables  = new ArrayList<>(10);
+    private final ArrayList<Runnable> delayedRunnablesTmp  = new ArrayList<>(10);
+    private final ArrayList<DelayedPost> delayedPostsTmp = new ArrayList<>(10);
+    private final ArrayList<PostponeNotificationCallback> postponeCallbackList = new ArrayList<>(10);
 
     private Runnable checkForExpiredNotifications;
 
